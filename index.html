@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link href="rainbow.min.css" rel="stylesheet" type="text/css">
+    <script src="./highlight.min.js"></script>
+    <script src="./highlightjs-line-numbers.min.js"></script>
+    <style>
+        #output{
+            font-size: 20px;
+        }
+
+        .post-content .wp-block-code {
+            background-color: #F6F8FF;
+            border-radius: 16px;
+            font-size: 16px;
+            padding: 22px 22px 22px 38px;
+            margin-top: 22px;
+            margin-bottom: 22px;
+        }
+
+        .post-content .wp-block-code {
+            line-height: 1.2;
+            font-size: 15px;
+            padding: 10px;
+            overflow-x: auto;
+        }
+
+        .post-content .wp-block-code code {
+            position: relative;
+            background-color: unset !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <pre><code class="language-lua" id="output"></code></pre>
+    </div>
+</body>
+<script>
+    utools.onPluginEnter(({ code, type, payload, option }) => {
+        var result = "格式错误：\n" + payload
+        payload = payload.trim()
+        try {
+            if (code == "lua") {
+                let trim_return = false
+                if (payload.startsWith('{') && payload.endsWith('}')) {
+                    payload = 'return ' + payload
+                    trim_return = true
+                }
+                result = window.lua_tools.Beautify(payload, {
+                    RenameVariables: true,
+                    RenameGlobals: false,
+                    SolveMath: true,
+                })
+                if( trim_return ) {
+                    result = result.replace(/return /, '')
+                }
+            }
+            else if (code == "lua-zip") {
+                result = window.lua_tools.Minify(payload, {
+                    SolveMath: true,
+                })
+            }
+        }
+        catch { }
+        result = result.trim()
+        result = hljs.highlight(result, { language: 'lua' })
+        document.getElementById("output").innerHTML = result.value
+        hljs.highlightAll(); // initialize highlighting
+        hljs.initLineNumbersOnLoad(); // apply line numbering
+        document.addEventListener('found-in-page', function(event) {
+            console.log("found in page", event)
+        });
+        let last_text = ""
+        utools.setSubInput(({ text }) => {
+            if(text === ""){
+                utools.stopFindInPage()
+            }
+            else{
+                last_text = text
+                utools.findInPage(text)
+            }
+        }, '搜索')
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'f' && event.ctrlKey) {
+                utools.subInputFocus()
+            }
+            if (event.key === 'Enter'){
+                if(event.shiftKey) {
+                    utools.findInPage(last_text,{
+                        forward : false
+                    })
+                }
+                else{
+                    utools.findInPage(last_text)
+                }
+            }
+        });
+    })
+
+</script>
+
+</html>

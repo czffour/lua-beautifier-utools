@@ -1,0 +1,30 @@
+{
+    "logo": "logo.png",
+    "main": "index.html",
+    "preload" : "preload.js",
+    "features": [
+        {
+            "code": "lua",
+            "cmds": [
+                {
+                    "type": "regex",
+                    "label": "lua格式化",
+                    "match": "/local|function|=|{/",
+                    "minLength": 10
+                }
+            ]
+        },
+        {
+            "code": "lua-zip",
+            "cmds": [
+                {
+                    "type": "regex",
+                    "label": "lua压缩",
+                    "match": "/local|function|=|{/",
+                    "minLength": 10
+                }
+            ]
+        }
+
+    ]
+}
